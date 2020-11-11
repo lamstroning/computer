@@ -1,11 +1,13 @@
 function readArgs(args) {
 	if (!args.length)
-		errorMessage('Emplty arguments!');
+		errorMessage('Empty arguments!');
 	let equations = args.join('')
 						.split(' ')
 						.filter(split => split)
 						.join('');
 	checkForbiddenChar(equations);
+	equations = equations.toUpperCase();
+	checkValidation(equations);
 	// equations = reduced(equations);
 	reduced(equations);
 	checkDegree(equations);
@@ -16,12 +18,27 @@ function errorMessage(message) {
 	process.exit(1);
 }
 
+function checkRepeate(repeate, value) {
+	return (repeate.indexOf(value) !== -1)
+}
+
+function checkValidation(equations) {
+	if (checkRepeate(equations, '**')
+		|| checkRepeate(equations, '++')
+		|| checkRepeate(equations, '--')
+		|| checkRepeate(equations, '//')
+		|| checkRepeate(equations, '==')
+		|| checkRepeate(equations, 'XX')
+		|| checkRepeate(equations, '^^'))
+		errorMessage('repeat operators');
+}
+
 function checkForbiddenChar(arg) {
-	const result = arg.replace(/\d|x| |=|\+|\/|\*|\^|-/gi, ''); 
+	const result = arg.replace(/\d|x| |=|\+|\/|\*|\^|-/gi, '');
 	if (result.length)
-		errorMessage('Invald symbols: ' + result);
+		errorMessage('Invalid symbols: ' + result);
 	if (arg.split('=').length != 2)
-		errorMessage('Invald polynomial');
+		errorMessage('Invalid polynomial');
 }
 
 function checkDegree(arg) {						
@@ -41,7 +58,7 @@ function checkDegree(arg) {
 function reduced(arg) {
 	const transfered = transfer(arg);
 	const filtered = transfered.join('').split('X').filter(f => f.indexOf('^') != -1);
-	console.log(filtered);
+	console.log(transfered);
 }
 
 function getDegreeList(arg) {
@@ -56,6 +73,8 @@ function transfer(arg) {
 }
 
 function searchBlock(arg, revert = false) {
+	if (arg == 0)
+		return; 
 	let result = arg.replace(/\+/g, '|+').replace(/-/g, '|-').split('|');
 	if (revert)
 		result = result.map(revert => {
